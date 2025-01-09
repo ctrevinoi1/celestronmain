@@ -35,7 +35,7 @@ def update_norad_list():
     norad_list = load_norad_ids(norad_config_path)
     print(f"Updated NORAD IDs: {norad_list}")
 
-async def handler(websocket, path):
+async def handler(websocket):
     # Authenticate the client
     try:
         auth_message = await websocket.recv()
