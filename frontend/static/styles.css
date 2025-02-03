@@ -1,6 +1,7 @@
 body {
-    font-family: sans-serif;
-    margin: 20px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa; /* Light gray background similar to Bootstrap */
+    margin: 0;
 }
 
 section {
@@ -19,4 +20,9 @@ li {
 textarea {
     width: 300px;
     height: 150px;
+}
+
+/* Additional spacing for the message alert at the top */
+#message {
+    margin-bottom: 20px;
 }
