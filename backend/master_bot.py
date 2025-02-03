@@ -25,7 +25,13 @@ norad_list = []
 
 # --- Flask Setup ---
 app = Flask(__name__)
-CORS(app)  # Enable CORS for development, configure properly for production
+CORS(app)  # Enable CORS for development; configure appropriately for production.
+
+# Add a root route for friendly status messages.
+@app.route('/')
+def index():
+    logger.debug("Root endpoint requested.")
+    return "Welcome to the Celestron Master Bot server."
 
 # --- API Endpoints ---
 @app.route('/telescopes', methods=['GET'])
@@ -56,8 +62,8 @@ def update_norad_ids():
         
         norad_list = new_norad_list
         logger.info(f"Updating NORAD IDs to: {norad_list}")
-        update_norad_list_file()  # Update the file as well
-        asyncio.run_coroutine_threadsafe(broadcast_norad_ids(norad_list), loop)
+        update_norad_list_file()  # Update the file as well.
+        asyncio.run_coroutine_threadsafe(broadcast_norad_ids(norad_list), asyncio.get_running_loop())
         logger.debug("Broadcasted new NORAD IDs to connected telescopes.")
         return jsonify({"message": "NORAD IDs updated", "norad_ids": norad_list})
     except ValueError as e:
@@ -128,7 +134,7 @@ async def handler(websocket):
         await websocket.close()
         return
 
-    # Client is authenticated
+    # Client is authenticated.
     connected_telescopes.add(websocket)
     logger.info(f"Telescope authenticated: {websocket.remote_address} added. Total connections: {len(connected_telescopes)}")
     try:
@@ -159,29 +165,29 @@ async def periodic_broadcast():
     while True:
         await broadcast_norad_ids(norad_list)
         logger.info(f"Broadcasted NORAD IDs to all telescopes: {norad_list}")
-        await asyncio.sleep(60)  # Wait a minute
+        await asyncio.sleep(60)  # Wait one minute.
 
 # --- Modified main function ---
 async def main():
-    global norad_config_path, loop
+    global norad_config_path
     norad_config_path = "norad_ids.json"
     logger.info("Starting master server...")
-    
-    # Initial load
+
+    # Initial load.
     update_norad_list()
     
-    # File watcher setup
+    # File watcher setup.
     event_handler = NoradIDEventHandler(norad_config_path, update_norad_list)
     observer = Observer()
     observer.schedule(event_handler, path=os.path.dirname(os.path.abspath(norad_config_path)), recursive=False)
     observer.start()
     logger.info("Started file observer for norad_ids.json.")
     
-    # Start WebSocket server
+    # Start WebSocket server.
     async with websockets.serve(handler, "0.0.0.0", 8765):
         logger.info("Master server listening on port 8765 for WebSocket connections...")
         
-        # Run Flask app in a separate thread
+        # Run Flask app in a separate thread.
         def run_flask():
             logger.info("Starting Flask server on port 5000...")
             app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
@@ -193,8 +199,8 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        loop = asyncio.get_event_loop()  # Get the main event loop
-        loop.run_until_complete(main())
+        # Use asyncio.run() to avoid deprecation warnings.
+        asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("Shutting down master server due to KeyboardInterrupt...")
     except Exception as e:
