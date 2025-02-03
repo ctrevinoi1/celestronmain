@@ -82,25 +82,29 @@ def update_norad_list():
     print(f"Updated NORAD IDs: {norad_list}")
 
 async def handler(websocket):
-    # Authenticate the client
+    """
+    Handle incoming WebSocket connections with authentication.
+    Newly connected clients must send an access code before being added.
+    """
     try:
+        # Wait for the client to send its access code.
         auth_message = await websocket.recv()
         auth_data = json.loads(auth_message)
-        if auth_data.get("token") != SECRET_TOKEN:
-            await websocket.send(json.dumps({"error": "Unauthorized"}))
+        if auth_data.get("access_code") != SECRET_TOKEN:
+            await websocket.send(json.dumps({"error": "Unauthorized access"}))
             await websocket.close()
             return
-    except:
+    except Exception as e:
         await websocket.close()
         return
 
-    # On successful authentication, add to connected set
+    # Client is authenticated
     connected_telescopes.add(websocket)
     try:
         async for message in websocket:
             print(f"Received from telescope: {message}")
-    except:
-        pass
+    except Exception as exc:
+        print(f"Error in connection: {exc}")
     finally:
         connected_telescopes.remove(websocket)
 
