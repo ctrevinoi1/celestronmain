@@ -12,7 +12,7 @@ from threading import Thread
 SECRET_TOKEN = "a1b2c3d4e5f6g7h8i9j0"
 
 connected_telescopes = set()
-norad_list = [25544, 24671, 24672, 24673, 24674, 24675, 24676, 24677, 24678, 24679]
+norad_list = []
 
 # --- Flask Setup ---
 app = Flask(__name__)
