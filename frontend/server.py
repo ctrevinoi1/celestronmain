@@ -36,4 +36,4 @@ def index():
 
 if __name__ == '__main__':
     # 0.0.0.0 makes it accessible on the public interface (assuming firewall rules allow it)
-    app.run(debug=True, host="172.236.242.199", port=8080)
+    app.run(debug=True, host="0.0.0.0", port=8080)
